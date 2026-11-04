@@ -1,5 +1,5 @@
 // ELVYRO app shell: works offline-to-start, always fetches fresh when online. Data calls (Apps Script) are never cached.
-const C = "elvyro-v47";
+const C = "elvyro-v49";
 self.addEventListener("install", (e) => { self.skipWaiting(); e.waitUntil(caches.open(C).then((c) => c.addAll(["./", "index.html", "icon-192.png"]).catch(() => {}))); });
 self.addEventListener("activate", (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== C).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", (e) => {
