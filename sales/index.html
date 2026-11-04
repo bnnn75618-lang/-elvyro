@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ELVYRO Sales Hub — ระบบค่าคอมแอดมินคลินิก</title>
+<meta name="description" content="นับค่าคอมและยอดขายของแอดมินคลินิกความงามจาก Google Sheets อัตโนมัติ ตรงกับที่หัวหน้านับ แจ้งเตือนลูกค้าที่ยังไม่นัด ใช้ได้ทุกเครื่อง">
+<meta property="og:title" content="ELVYRO Sales Hub — ระบบค่าคอมแอดมินคลินิก">
+<meta property="og:description" content="นับค่าคอมจาก Google Sheets อัตโนมัติ ตรงทุกบิล ไม่ต้องนั่งนับมือ">
+<meta property="og:image" content="desk_dash.webp">
+<meta name="theme-color" content="#1A0F38">
+<link rel="icon" type="image/png" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Fredoka:wght@600&display=swap">
+<style>
+:root {
+  --bg: #1A0F38; --bg-2: #22164A; --card: #261858; --line: #3A2A7E;
+  --ink: #FBF8FF; --ink-2: #D6CBFA; --ink-3: #A898DE;
+  --lav: #B48CFF; --violet: #7A4BF5; --pink: #FF9ED8; --mint: #7FF0D0; --gold: #FFE27A;
+  --grad: linear-gradient(120deg, #7A4BF5, #A465F0 50%, #D66BC8);
+  --head: "Mali", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --body: "IBM Plex Sans Thai", system-ui, sans-serif;
+  --num: "Fredoka", "Mali", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.7 var(--body); -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(800px 500px at 85% -5%, rgba(180, 140, 255, .28), transparent 60%), radial-gradient(700px 500px at -10% 70%, rgba(214, 107, 200, .16), transparent 60%); }
+a { color: inherit; }
+img { max-width: 100%; height: auto; display: block; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--head); line-height: 1.3; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+
+/* top bar */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 18px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--head); font-size: 20px; }
+.brand img { width: 40px; height: 40px; border-radius: 12px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 999px; font: 600 16px var(--body); text-decoration: none; border: 0; cursor: pointer; }
+.btn-main { background: var(--grad); color: #fff; box-shadow: 0 14px 30px -14px rgba(164, 101, 240, .95); }
+.btn-ghost { background: rgba(255, 255, 255, .06); color: var(--ink); border: 1px solid var(--line); }
+.btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+/* hero */
+.hero { display: grid; grid-template-columns: 1fr; gap: 36px; padding-block: 28px 56px; }
+.hero h1 { font-size: clamp(30px, 8vw, 52px); }
+@media (min-width: 960px) { .hero h1 { font-size: clamp(36px, 3.6vw, 50px); } }
+.hero h1 .soft { color: var(--lav); }
+.nw { white-space: nowrap; }
+.hero .lead { margin-top: 16px; font-size: clamp(17px, 2.2vw, 20px); color: var(--ink-2); max-width: 34em; }
+.hero .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.hero .note { margin-top: 12px; font-size: 14px; color: var(--ink-3); }
+.shots { position: relative; min-width: 0; }
+.shots .desk { border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .9); }
+.shots .phone { position: absolute; right: -6px; bottom: -28px; width: 30%; max-width: 210px; border-radius: 26px; border: 6px solid #0F0926; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .9); }
+@media (min-width: 960px) { .hero { grid-template-columns: 1fr 1.15fr; align-items: center; padding-block: 40px 80px; } }
+
+/* sheet → app strip: the clinic's own vocabulary */
+.strip { display: grid; grid-template-columns: 1fr; gap: 14px; padding-block: 8px 56px; }
+.cell { background: var(--bg-2); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; }
+.cell small { display: block; color: var(--ink-3); font-size: 13px; }
+.cell b { font: 600 26px/1.3 var(--num); color: var(--ink); }
+.cell span { color: var(--ink-2); font-size: 14.5px; }
+@media (min-width: 760px) { .strip { grid-template-columns: repeat(4, 1fr); } }
+
+section { padding-block: 56px; }
+.kicker { color: var(--pink); font-weight: 600; font-size: 15px; margin-bottom: 8px; }
+.sec-h { font-size: clamp(26px, 4vw, 38px); max-width: 22em; }
+.sec-p { color: var(--ink-2); margin-top: 12px; max-width: 40em; }
+
+/* pain */
+.pain { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 26px; }
+.pain li { list-style: none; background: rgba(255, 255, 255, .04); border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; color: var(--ink-2); }
+.pain li b { color: var(--ink); }
+.pain ul { margin: 0; padding: 0; display: contents; }
+@media (min-width: 760px) { .pain { grid-template-columns: 1fr 1fr; } }
+
+/* features */
+.feat { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 30px; }
+.f { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 22px; }
+.f h3 { font-size: 20px; margin-bottom: 8px; display: flex; gap: 10px; align-items: center; }
+.f h3 i { flex: none; width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; font-style: normal; font-size: 18px; background: var(--grad); }
+.f p { color: var(--ink-2); font-size: 15.5px; }
+.f.wide { display: grid; gap: 18px; align-items: center; }
+.f.wide img { border-radius: 14px; border: 1px solid var(--line); }
+@media (min-width: 760px) { .feat { grid-template-columns: repeat(2, 1fr); } .f.wide { grid-column: 1 / -1; grid-template-columns: 1fr 1.3fr; } }
+@media (min-width: 1000px) { .feat { grid-template-columns: repeat(3, 1fr); } }
+
+/* steps (a real sequence) */
+.steps { counter-reset: s; display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 28px; padding: 0; }
+.steps li { list-style: none; counter-increment: s; position: relative; padding: 20px 20px 20px 72px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 18px; color: var(--ink-2); }
+.steps li::before { content: counter(s); position: absolute; left: 20px; top: 18px; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font: 600 18px var(--num); background: var(--grad); color: #fff; }
+.steps li b { display: block; color: var(--ink); font-size: 17px; }
+@media (min-width: 860px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+
+/* safety */
+.safe { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: center; }
+.safe ul { margin: 18px 0 0; padding: 0; display: grid; gap: 10px; }
+.safe li { list-style: none; padding-left: 28px; position: relative; color: var(--ink-2); }
+.safe li::before { content: "✓"; position: absolute; left: 0; color: var(--mint); font-weight: 700; }
+.safe img { border-radius: 26px; border: 6px solid #0F0926; max-width: 300px; margin: 0 auto; }
+@media (min-width: 860px) { .safe { grid-template-columns: 1.3fr 1fr; } }
+
+/* closing */
+.end { text-align: center; background: var(--grad); border-radius: 30px; padding: 44px 22px; margin-block: 40px 30px; }
+.end h2 { font-size: clamp(26px, 4vw, 38px); }
+.end p { margin-top: 10px; color: #F4ECFF; }
+.end .cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 24px; }
+.end .btn-main { background: #fff; color: #5B2FD6; box-shadow: none; }
+.end .btn-ghost { background: rgba(255, 255, 255, .16); border-color: rgba(255, 255, 255, .4); color: #fff; }
+.contact { margin-top: 18px; font-size: 15px; color: #fff; }
+.contact b { user-select: all; }
+footer { padding-block: 10px 40px; color: var(--ink-3); font-size: 13.5px; text-align: center; }
+@media (prefers-reduced-motion: no-preference) { .shots .phone { animation: float 6s ease-in-out infinite; } @keyframes float { 50% { transform: translateY(-8px); } } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./"><img src="../icon-192.png" alt="">ELVYRO Sales Hub</a>
+    <a class="btn btn-ghost" href="../demo/">ลองใช้ตัวอย่าง</a>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div>
+        <h1><span class="nw">ค่าคอมแอดมินคลินิก</span><br><span class="soft"><span class="nw">นับเองจาก</span> <span class="nw">Google Sheets</span></span></h1>
+        <p class="lead">แอดมินลงยอดในชีตเหมือนเดิม ระบบอ่านให้ทุก 10 นาที แล้วสรุปค่าคอม ยอดขาย และลูกค้าที่ต้องตาม ให้แต่ละคนดูได้ในมือถือ ตัวเลขตรงกับที่หัวหน้านับ</p>
+        <div class="cta">
+          <a class="btn btn-main" href="../demo/">ลองใช้ตัวอย่างฟรี</a>
+          <a class="btn btn-ghost" href="#contact">สอบถาม / ขอติดตั้ง</a>
+        </div>
+        <p class="note">ตัวอย่างใช้ข้อมูลสมมติ ไม่ต้องสมัคร ไม่ต้องล็อกอิน</p>
+      </div>
+      <div class="shots">
+        <img class="desk" src="desk_dash.webp" width="1600" height="1000" alt="หน้าภาพรวม: ค่าคอมเดือนนี้ ยอดขาย จำนวนบิล และกราฟยอดขายรายวัน">
+        <img class="phone" src="phone_dash.webp" width="600" height="1298" alt="หน้าภาพรวมบนมือถือ">
+      </div>
+    </div>
+
+    <div class="strip" aria-label="สิ่งที่ระบบนับให้">
+      <div class="cell"><small>ค่าคอม</small><b>30 ฿ / บิล</b><br><span>ตั้งอัตราได้ต่อแอดมิน บิลซ้ำนับครั้งเดียว</span></div>
+      <div class="cell"><small>SQL1 · SQL2</small><b>ตรงแท็บ By Admin</b><br><span>เปิดบิล + ส่งปรึกษา · ส่งเข้าสาขาในเดือน</span></div>
+      <div class="cell"><small>ยอดขาย</small><b>มัดจำ + นัด</b><br><span>ส่วนที่เหลือนับตามเดือนที่ลูกค้าทำนัด</span></div>
+      <div class="cell"><small>ติดตามลูกค้า</small><b>30 วันไม่นัด</b><br><span>เด้งเตือนแอดมินเจ้าของเคสทาง Telegram</span></div>
+    </div>
+
+    <section aria-labelledby="pain-h">
+      <p class="kicker">ปัญหาที่คลินิกเจอทุกเดือน</p>
+      <h2 class="sec-h" id="pain-h">ยอดอยู่ในชีตครบ แต่ต้องมีคนมานั่งนับ</h2>
+      <div class="pain"><ul>
+        <li><b>สิ้นเดือนนับค่าคอมทีละแถว</b> — บิลเดียวลงหลายแถว ลงชื่อแอดมินผิด เลขบิลพิมพ์ผิด ต้องไล่เช็กเอง</li>
+        <li><b>แอดมินไม่รู้ยอดตัวเองระหว่างเดือน</b> — ต้องถามหัวหน้า หรือเปิดชีตรวมที่มีข้อมูลทุกคน</li>
+        <li><b>ลูกค้าเปิดบิลแล้วเงียบ</b> — จ่ายมัดจำแต่ยังไม่นัดทำ ไม่มีใครเตือนให้ตาม จนลืม</li>
+        <li><b>ยอดขายกับเดือนที่ทำนัดไม่ตรงกัน</b> — บิลเปิดเดือนนี้แต่ทำเดือนหน้า สรุปยอดแต่ละเดือนสับสน</li>
+      </ul></div>
+    </section>
+
+    <section aria-labelledby="feat-h">
+      <p class="kicker">ทำอะไรได้บ้าง</p>
+      <h2 class="sec-h" id="feat-h">ทุกตัวเลขมาจากชีตจริง ไม่มีใครต้องกรอกซ้ำ</h2>
+      <div class="feat">
+        <div class="f wide">
+          <div><h3><i>฿</i>ค่าคอมที่ตรวจได้ทุกบิล</h3>
+            <p>รายการค่าคอมแสดงทีละบิล พร้อมเหตุผลเมื่อระบบเจอบิลแปลก เช่น บิลซ้ำข้ามแอดมิน หรือไม่มีเลขบิล หัวหน้ากด "ไม่นับ" ได้เอง และมีบันทึกทุกครั้งที่แก้</p></div>
+          <img src="desk_commission.webp" width="1600" height="1000" alt="หน้าค่าคอม: รายการบิลที่นับแล้ว รอตรวจ และรายการผิดปกติ" loading="lazy">
+        </div>
+        <div class="f"><h3><i>⟳</i>อัปเดตเอง ไม่ต้องกดซิงก์</h3><p>แอดมินพิมพ์ยอดในชีต ภายใน 10 นาทีขึ้นในระบบ รองรับไฟล์รายเดือนแบบ "ไฟล์ยอดขาย 11/2026" และหลายสาขาในไฟล์เดียว</p></div>
+        <div class="f"><h3><i>◎</i>แต่ละคนเห็นแค่ของตัวเอง</h3><p>ส่งลิงก์ส่วนตัวให้แอดมิน ไม่ต้องมีบัญชี Google เจ้าของคลินิกเห็นภาพรวมทั้งทีม ลิงก์หลุดกดยกเลิกได้ทันที</p></div>
+        <div class="f"><h3><i>✈</i>เตือนลูกค้าที่ยังไม่นัด</h3><p>ลูกค้าเปิดบิลครบ 30 วันแล้วยังไม่นัด ระบบส่งรายชื่อเข้า Telegram ของแอดมินเจ้าของเคส แยกสีตามจำนวนวัน</p></div>
+        <div class="f"><h3><i>▦</i>รายงานแบบที่หัวหน้าใช้</h3><p>SQL1, SQL2, ค่าคอม, ยอดเต็ม, มัดจำ, หัตถการขายดี, สาขา, ช่องทาง แยกรายแอดมินและรายสาขา ส่งออก CSV ได้</p></div>
+        <div class="f"><h3><i>▢</i>เป็นแอปในมือถือ</h3><p>เพิ่มไอคอนลงหน้าจอ iPhone และ Android เปิดเต็มจอเหมือนแอปทั่วไป ใช้บนคอมและ iPad ได้ด้วย</p></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="how-h">
+      <p class="kicker">เริ่มใช้อย่างไร</p>
+      <h2 class="sec-h" id="how-h">ไม่ต้องเปลี่ยนวิธีลงยอดของทีม</h2>
+      <ol class="steps">
+        <li><b>แชร์ชีตยอดขายให้ระบบอ่าน</b>ระบบอ่านอย่างเดียว ไม่แก้ไฟล์ต้นฉบับ ไม่ลบแถวใดๆ</li>
+        <li><b>ตั้งชื่อแอดมินและอัตราค่าคอม</b>เลือกสาขาที่นับ วันเริ่มคิด และค่าคอมต่อบิลของแต่ละคน</li>
+        <li><b>ส่งลิงก์แอปให้ทีม</b>แอดมินกดลิงก์ เพิ่มลงหน้าจอ แล้วเห็นยอดของตัวเองทันที</li>
+      </ol>
+    </section>
+
+    <section class="safe" aria-labelledby="safe-h">
+      <div>
+        <p class="kicker">ข้อมูลลูกค้าปลอดภัย</p>
+        <h2 class="sec-h" id="safe-h">ข้อมูลอยู่ใน Google Drive ของคลินิกเอง</h2>
+        <ul>
+          <li>ระบบติดตั้งในบัญชี Google ของคลินิก ไม่มีเซิร์ฟเวอร์กลางเก็บข้อมูลลูกค้า</li>
+          <li>ตรวจสิทธิ์ที่ฝั่งเซิร์ฟเวอร์ทุกครั้ง แอดมินดึงข้อมูลคนอื่นไม่ได้</li>
+          <li>แถวที่หายจากชีตจะถูกแจ้งให้ตรวจ ไม่ลบทิ้งเอง</li>
+          <li>ไม่มีค่าเซิร์ฟเวอร์รายเดือนเพิ่ม ใช้โควตาฟรีของ Google</li>
+        </ul>
+      </div>
+      <img src="phone_reports.webp" width="600" height="1298" alt="หน้ารายงานบนมือถือ" loading="lazy">
+    </section>
+
+    <div class="end" id="contact">
+      <h2>อยากเห็นกับชีตของคลินิกคุณ?</h2>
+      <p>ลองตัวอย่างก่อนได้เลย ถ้าสนใจ ติดต่อเพื่อดูว่าชีตของคุณใช้ได้ทันทีหรือต้องปรับอะไร</p>
+      <div class="cta">
+        <a class="btn btn-main" href="../demo/">ลองใช้ตัวอย่าง</a>
+      </div>
+      <p class="contact" id="contact-line" hidden></p>
+    </div>
+  </main>
+
+  <footer>ELVYRO Sales Hub · ภาพหน้าจอทั้งหมดใช้ข้อมูลสมมติ</footer>
+</div>
+<script>
+  // contact details (fill in to show): e.g. { line: "@elvyro", phone: "08x-xxx-xxxx" }
+  var CONTACT = {};
+  var parts = [];
+  if (CONTACT.line) parts.push('LINE: <b>' + CONTACT.line + '</b>');
+  if (CONTACT.phone) parts.push('โทร: <b>' + CONTACT.phone + '</b>');
+  if (parts.length) { var el = document.getElementById("contact-line"); el.innerHTML = parts.join(" · "); el.hidden = false; }
+</script>
+</body>
+</html>
