@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Softboyprem</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Softboyprem">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#EDE4FF">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+html,body{margin:0;height:100%;background:#EDE4FF;overflow:hidden}
+#app{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:#EDE4FF}
+#sp{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:linear-gradient(180deg,#EEE6FF,#E3D4FB);font:600 15px -apple-system,system-ui,sans-serif;color:#5B47A0;transition:opacity .35s}
+#sp img{width:112px;height:112px;border-radius:26px;box-shadow:0 14px 34px -14px rgba(90,60,180,.6)}
+#sp i{width:26px;height:26px;border-radius:50%;border:3px solid rgba(124,77,255,.25);border-top-color:#7C4DFF;animation:r .8s linear infinite}
+@keyframes r{to{transform:rotate(1turn)}}
+#sp.h{opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="sp"><img src="icon-180.png" alt=""><i></i><span>กำลังเปิด Softboyprem…</span></div>
+<iframe id="app" title="Softboyprem" allow="clipboard-read; clipboard-write; fullscreen" referrerpolicy="no-referrer-when-downgrade"></iframe>
+<script>
+// ลิงก์ร้าน (Web app URL ที่ลงท้ายด้วย /exec) — เปลี่ยนได้ที่บรรทัดนี้บรรทัดเดียว
+var SHOP_URL = "__SHOP_URL__";
+(function(){
+  var q = location.search ? location.search.slice(1) : "", u = SHOP_URL;
+  // ส่งต่อพารามิเตอร์ เช่น ?ref=โค้ดชวนเพื่อน หรือ ?o=เลขออเดอร์
+  u += (u.indexOf("?") < 0 ? "?" : "&") + "shop=1" + (q ? "&" + q : "");
+  var f = document.getElementById("app"), sp = document.getElementById("sp");
+  if (SHOP_URL.indexOf("script.google.com") < 0) { sp.querySelector("i").style.display = "none"; sp.querySelector("span").textContent = "ร้านกำลังตั้งค่า กรุณาลองใหม่ภายหลัง"; return; }
+  f.onload = function(){ setTimeout(function(){ sp.className = "h"; }, 250); };
+  setTimeout(function(){ sp.className = "h"; }, 9000);
+  f.src = u;
+})();
+</script>
+</body>
+</html>
