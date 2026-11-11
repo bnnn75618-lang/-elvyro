@@ -26,6 +26,13 @@ html,body{margin:0;height:100%;touch-action:manipulation;-webkit-text-size-adjus
 <div id="sp"><img src="../icon-180.png" alt=""><i></i><span>กำลังเปิดหลังร้าน…</span></div>
 <iframe id="app" title="Softboyprem" allow="clipboard-read; clipboard-write; fullscreen" referrerpolicy="no-referrer-when-downgrade"></iframe>
 <script>
+// เก็บการเข้าสู่ระบบให้ร้าน (iOS ไม่เก็บข้อมูลของเว็บที่ถูกฝัง) — รับ/ส่งเฉพาะค่า sbp* กับหน้าร้านของ Google Apps Script เท่านั้น
+window.addEventListener("message",function(ev){var d=ev.data;if(!d||!d.sbpb||!/^https:\/\/[a-z0-9-]+-script\.googleusercontent\.com$/.test(ev.origin))return;
+  try{if(d.sbpb==="hello"){var o={};for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sbp/.test(k))o[k]=localStorage.getItem(k)}ev.source.postMessage({sbpb:"snap",data:o},ev.origin)}
+  else if(d.sbpb==="set"&&/^sbp/.test(d.k))localStorage.setItem(d.k,String(d.v));
+  else if(d.sbpb==="del"&&/^sbp/.test(d.k))localStorage.removeItem(d.k)}catch(e){}});
+</script>
+<script>
 // ลิงก์ร้าน (Web app URL ที่ลงท้ายด้วย /exec) — เปลี่ยนได้ที่บรรทัดนี้บรรทัดเดียว
 var SHOP_URL = "https://script.google.com/macros/s/AKfycbx6DP7amofuld9r8fubfNHLVfwOQPtv06IU9_ZJwe6_OFnVZuDTryW3y38T0DmstUIf/exec";
 (function(){
